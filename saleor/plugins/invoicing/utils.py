@@ -12,10 +12,12 @@ from weasyprint import HTML
 from ...giftcard import GiftCardEvents
 from ...giftcard.models import GiftCardEvent
 from ...invoice.models import Invoice
+import json
 
-MAX_PRODUCTS_WITH_TABLE = 3
-MAX_PRODUCTS_WITHOUT_TABLE = 4
-MAX_PRODUCTS_PER_PAGE = 13
+
+MAX_PRODUCTS_WITH_TABLE = 13
+MAX_PRODUCTS_WITHOUT_TABLE = 14
+MAX_PRODUCTS_PER_PAGE = 25
 
 
 def make_full_invoice_number(number=None, month=None, year=None):
@@ -92,6 +94,7 @@ def generate_invoice_pdf(invoice):
     rest_of_products = chunk_products(
         all_products[product_limit_first_page:], MAX_PRODUCTS_PER_PAGE
     )
+
     order = invoice.order
     gift_cards_payment = get_gift_cards_payment_amount(order)
     creation_date = datetime.now(tz=pytz.utc)

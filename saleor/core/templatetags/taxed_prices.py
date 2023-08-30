@@ -16,3 +16,15 @@ def price(context, base, display_gross=None, html=True):
 
     is_range = isinstance(base, MoneyRange)
     return {"price": base, "is_range": is_range, "html": html}
+
+@register.filter
+def replaceZar(value, arg):
+    """
+    Replacing filter
+    Use `{{ "aaa"|replace:"a|b" }}`
+    """
+    if len(arg.split('|')) != 2:
+        return value
+
+    what, to = arg.split('|')
+    return value.replace(what, to)

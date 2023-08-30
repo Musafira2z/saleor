@@ -1,23 +1,23 @@
-{% load prices %}{% spaceless %}
+{% load prices %}{% load replaceZar from taxed_prices %}{% spaceless %}
   {% if is_range %}
     {% if price.start == price.stop %}
       {% if html %}
-        {{ price.start|amount:'html' }}
+        {{ price.start|amount:'html'|replaceZar:"ZAR|R "|safe }}
       {% else %}
-        {{ price.start|amount }}
+        {{ price.start|amount|replaceZar:"ZAR|R " }}
       {% endif %}
     {% else %}
       {% if html %}
-        {{ price.start|amount:'html' }} - {{ price.stop|amount:'html' }}
+        {{ price.start|amount:'html'|replaceZar:"ZAR|R "|safe }} - {{ price.stop|amount:'html'|replaceZar:"ZAR|R "|safe }}
       {% else %}
-        {{ price.start|amount }} - {{ price.stop|amount }}
+        {{ price.start|amount|replaceZar:"ZAR|R " }} - {{ price.stop|amount|replaceZar:"ZAR|R " }}
       {% endif %}
     {% endif %}
   {% else %}
     {% if html %}
-      {{ price|amount:'html' }}
+      {{ price|amount:'html'|replaceZar:"ZAR|R "|safe }}
     {% else %}
-      {{ price|amount }}
+      {{ price|amount|replaceZar:"ZAR|R " }}
     {% endif %}
   {% endif %}
 {% endspaceless %}

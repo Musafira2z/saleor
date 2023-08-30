@@ -18,12 +18,12 @@
         {% for product in products %}
         <tr class="row-product">
             <td class="cell-product">
-                <span class="normal-text-table">
+                <span class="normal-text-table normal-text-table-product-cell">
                     {{ product|truncatechars:46 }}
-                    {% if product.product_sku %}
-                      <div class="padded-font-small"></div>
-                      <span class="header-category-small">SKU: {{ product.product_sku }}</span>
-                    {% endif %}
+<!--                    {% if product.product_sku %}-->
+<!--                      <div class="padded-font-small"></div>-->
+<!--                      <span class="header-category-small">SKU: {{ product.product_sku }}</span>-->
+<!--                    {% endif %}-->
                 </span>
             </td>
             <td class="cell-price">

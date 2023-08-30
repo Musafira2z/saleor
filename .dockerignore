@@ -4,3 +4,5 @@
 media
 node_modules
 static
+*.env
+deployment/
