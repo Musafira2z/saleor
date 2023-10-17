@@ -204,23 +204,21 @@
 <body>
 <div class="section-header section-left">
   <div class="content-padded">
-    <span class="normal-text">{{ order.billing_address.company_name }}</span>
+    <img style="width: 7rem; height: auto;"
+         src="https://www.musafira2z.com/static/media/saleor.e3167593a90392533db60c416b8e1883.svg" height="40px"
+         alt="Musafir Logo"/>
     <br/>
-    <span class="normal-text">{{ order.billing_address.street_address_1 }}</span>
+    <span class="normal-text">Musafir Trading</span>
     <br/>
-    {% if order.billing_address.street_address_2 %}
-    <span class="normal-text">{{ order.billing_address.street_address_2 }}</span>
+    <span class="normal-text">Bedford Industrial Park</span>
     <br/>
-    {% endif %}
-    <span class="normal-text">{{ order.billing_address.city }}</span>
+    <span class="normal-text">13 Carbon St</span>
     <br/>
-    <span class="normal-text">{{ order.billing_address.postal_code }}</span>
+    <span class="normal-text">ATHLONE, 7764</span>
     <br/>
-    {% if order.billing_address.phone %}
-    <span class="normal-text">{{ order.billing_address.phone }}</span>
+    <span class="normal-text">+27219271482</span>
     <br/>
-    {% endif %}
-    <span class="normal-text">{{ order.get_customer_email }}</span>
+    <span class="normal-text">musafirmiah4@gmail.com</span>
     <br/>
   </div>
 </div>
