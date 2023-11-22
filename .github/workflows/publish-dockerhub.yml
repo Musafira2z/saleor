@@ -38,5 +38,5 @@ jobs:
           push: true
           tags: |
             latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/saleor:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/saleor:${{ steps.get-version.outputs.version }}
+            programminghero/saleor:latest
+            programminghero/saleor:${{ steps.get-version.outputs.version }}
