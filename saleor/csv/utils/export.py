@@ -7,6 +7,8 @@ import petl as etl
 from django.utils import timezone
 
 from ...giftcard.models import GiftCard
+from ...order import OrderStatus
+from ...order.models import Order
 from ...product.models import Product
 from .. import FileTypes
 from ..notifications import send_export_download_link_notification
@@ -19,16 +21,15 @@ if TYPE_CHECKING:
 
     from ..models import ExportFile
 
-
 BATCH_SIZE = 10000
 
 
 def export_products(
-    export_file: "ExportFile",
-    scope: Dict[str, Union[str, dict]],
-    export_info: Dict[str, list],
-    file_type: str,
-    delimiter: str = ",",
+        export_file: "ExportFile",
+        scope: Dict[str, Union[str, dict]],
+        export_info: Dict[str, list],
+        file_type: str,
+        delimiter: str = ",",
 ):
     from ...graphql.product.filters import ProductFilter
 
@@ -60,20 +61,22 @@ def export_products(
 
 
 def export_gift_cards(
-    export_file: "ExportFile",
-    scope: Dict[str, Union[str, dict]],
-    file_type: str,
-    delimiter: str = ",",
+        export_file: "ExportFile",
+        scope: Dict[str, Union[str, dict]],
+        file_type: str,
+        delimiter: str = ",",
 ):
-    from ...graphql.giftcard.filters import GiftCardFilter
-
     file_name = get_filename("gift_card", file_type)
+    print("fileName: ", file_name)
+    print(", filetype: ", file_type)
+    print("\n")
 
-    queryset = get_queryset(GiftCard, GiftCardFilter, scope)
-    # only unused gift cards codes can be exported
-    queryset = queryset.filter(used_by_email__isnull=True)
+    queryset = Order.objects.filter(
+        created_at__date=date.today(),
+        status=OrderStatus.FULFILLED
+    )
 
-    export_fields = ["code"]
+    export_fields = ["number", "customer_name", "address", "total"]
     temporary_file = create_file_with_headers(export_fields, delimiter, file_type)
 
     export_gift_cards_in_batches(
@@ -149,13 +152,13 @@ def create_file_with_headers(file_headers: List[str], delimiter: str, file_type:
 
 
 def export_products_in_batches(
-    queryset: "QuerySet",
-    export_info: Dict[str, list],
-    export_fields: Set[str],
-    headers: List[str],
-    delimiter: str,
-    temporary_file: Any,
-    file_type: str,
+        queryset: "QuerySet",
+        export_info: Dict[str, list],
+        export_fields: Set[str],
+        headers: List[str],
+        delimiter: str,
+        temporary_file: Any,
+        file_type: str,
 ):
     warehouses = export_info.get("warehouses")
     attributes = export_info.get("attributes")
@@ -179,16 +182,41 @@ def export_products_in_batches(
 
 
 def export_gift_cards_in_batches(
-    queryset: "QuerySet",
-    export_fields: List[str],
-    delimiter: str,
-    temporary_file: Any,
-    file_type: str,
+        queryset: "QuerySet",
+        export_fields: List[str],
+        delimiter: str,
+        temporary_file: Any,
+        file_type: str,
 ):
     for batch_pks in queryset_in_batches(queryset):
-        gift_card_batch = GiftCard.objects.filter(pk__in=batch_pks)
+        gift_card_batch = Order.objects.filter(pk__in=batch_pks).prefetch_related(
+            "user",
+            "shipping_address"
+        )
 
-        export_data = list(gift_card_batch.values(*export_fields))
+        # Prepare export data
+        export_data = []
+        for order in gift_card_batch:
+            row = {}
+            for field in export_fields:
+                if field == "number":
+                    row[field] = order.number
+                elif field == "customer_name":
+                    row[field] = order.user.get_full_name() if order.user else "Guest"
+                elif field == "address":
+                    row[field] = (
+                        f"{order.shipping_address.street_address_1}, "
+                        f"{order.shipping_address.city}, "
+                        f"{order.shipping_address.country}"
+                        if order.shipping_address
+                        else "No Shipping Address"
+                    )
+                elif field == "total":
+                    row[
+                        field] = f"R {order.total.gross.amount:.2f}"  # Assuming `total` has a `gross` attribute
+                else:
+                    row[field] = ""  # Handle unexpected fields
+            export_data.append(row)
 
         append_to_file(export_data, export_fields, temporary_file, file_type, delimiter)
 
@@ -213,11 +241,11 @@ def queryset_in_batches(queryset):
 
 
 def append_to_file(
-    export_data: List[Dict[str, Union[str, bool]]],
-    headers: List[str],
-    temporary_file: Any,
-    file_type: str,
-    delimiter: str,
+        export_data: List[Dict[str, Union[str, bool]]],
+        headers: List[str],
+        temporary_file: Any,
+        file_type: str,
+        delimiter: str,
 ):
     table = etl.fromdicts(export_data, header=headers, missing=" ")
 
@@ -228,6 +256,8 @@ def append_to_file(
 
 
 def save_csv_file_in_export_file(
-    export_file: "ExportFile", temporary_file: IO[bytes], file_name: str
+        export_file: "ExportFile", temporary_file: IO[bytes], file_name: str
 ):
+    print("fileName: ", file_name)
+    print("\n")
     export_file.content_file.save(file_name, temporary_file)
