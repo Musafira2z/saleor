@@ -5,6 +5,9 @@ services:
     image: programminghero/saleor:3.7.27
     build:
       context: ../
+    depends_on:
+      - db
+      - cache
     ports:
       - "8008:8000"
     environment:
@@ -16,6 +19,9 @@ services:
       - EMAIL_PORT=587
       - EMAIL_HOST_USER=anwar.hussen.pro@gmail.com
       - DATABASE_URL=postgresql://django_traefik:django_traefik@db:5432/django_traefik
+      - REDIS_URL=redis://cache:6379/0
+      - CELERY_BROKER_URL=redis://cache:6379/0
+      - CELERY_RESULT_BACKEND=redis://cache:6379/0
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.django.rule=Host(`saleor.helloanwar.com`)"
@@ -25,31 +31,39 @@ services:
   db:
     image: postgres:13-alpine
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - postgres_data_new2:/var/lib/postgresql/data/
     expose:
       - 5432
     environment:
       - POSTGRES_USER=django_traefik
       - POSTGRES_PASSWORD=django_traefik
       - POSTGRES_DB=django_traefik
-  traefik:
-    image: traefik:latest
-    ports:
-      - "80:80"
-      - "443:443"
+  cache:
+    image: redis:latest
+    restart: always
+    command: redis-server --save 20 1 --loglevel warning
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "./traefik-public-certificates:/certificates"
-      - "./traefik.prod.toml:/etc/traefik/traefik.toml"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.rule=Host(`traefik.helloanwar.com`)"
-      - "traefik.http.routers.dashboard.tls=true"
-      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.dashboard.service=api@internal"
-      - "traefik.http.routers.dashboard.middlewares=auth"
-      - "traefik.http.middlewares.auth.basicauth.users=testuser:$$apr1$$jIKW.bdS$$eKXe4Lxjgy/rH65wP1iQe1"
+      - cache:/data
+#  traefik:
+#    image: traefik:latest
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    volumes:
+#      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+#      - "./traefik-public-certificates:/certificates"
+#      - "./traefik.prod.toml:/etc/traefik/traefik.toml"
+#    labels:
+#      - "traefik.enable=true"
+#      - "traefik.http.routers.dashboard.rule=Host(`traefik.helloanwar.com`)"
+#      - "traefik.http.routers.dashboard.tls=true"
+#      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+#      - "traefik.http.routers.dashboard.service=api@internal"
+#      - "traefik.http.routers.dashboard.middlewares=auth"
+#      - "traefik.http.middlewares.auth.basicauth.users=testuser:$$apr1$$jIKW.bdS$$eKXe4Lxjgy/rH65wP1iQe1"
 
 volumes:
-  traefik-public-certificates:
-  postgres_data:
+  #  traefik-public-certificates:
+  postgres_data_new2:
+  cache:
+    driver: local

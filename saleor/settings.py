@@ -94,7 +94,7 @@ DATABASE_ROUTERS = ["saleor.core.db_routers.PrimaryReplicaRouter"]
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Africa/Johannesburg"
 LANGUAGE_CODE = "en"
 LANGUAGES = CORE_LANGUAGES
 LOCALE_PATHS = [os.path.join(PROJECT_ROOT, "locale")]
@@ -303,8 +303,8 @@ LOGGING = {
             "()": "saleor.core.logging.JsonFormatter",
             "datefmt": "%Y-%m-%dT%H:%M:%SZ",
             "format": (
-                "%(asctime)s %(levelname)s %(lineno)s %(message)s %(name)s "
-                + "%(pathname)s %(process)d %(threadName)s"
+                    "%(asctime)s %(levelname)s %(lineno)s %(message)s %(name)s "
+                    + "%(pathname)s %(process)d %(threadName)s"
             ),
         },
         "celery_json": {
@@ -422,7 +422,6 @@ MAX_USER_ADDRESSES = int(os.environ.get("MAX_USER_ADDRESSES", 100))
 
 TEST_RUNNER = "saleor.tests.runner.PytestTestRunner"
 
-
 PLAYGROUND_ENABLED = get_bool_from_env("PLAYGROUND_ENABLED", True)
 
 ALLOWED_HOSTS = get_list(os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1"))
@@ -495,7 +494,6 @@ PLACEHOLDER_IMAGES = {
     4096: "images/placeholder4096.png",
 }
 
-
 AUTHENTICATION_BACKENDS = [
     "saleor.core.auth_backend.JSONWebTokenBackend",
     "saleor.core.auth_backend.PluginBackend",
@@ -520,7 +518,7 @@ EXPORT_FILES_TIMEDELTA = timedelta(
 # CELERY SETTINGS
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_BROKER_URL = (
-    os.environ.get("CELERY_BROKER_URL", os.environ.get("CLOUDAMQP_URL")) or ""
+        os.environ.get("CELERY_BROKER_URL", os.environ.get("CLOUDAMQP_URL")) or ""
 )
 CELERY_TASK_ALWAYS_EAGER = not CELERY_BROKER_URL
 CELERY_ACCEPT_CONTENT = ["json"]
@@ -636,7 +634,6 @@ DEFAULT_CHANNEL_SLUG = os.environ.get("DEFAULT_CHANNEL_SLUG", "default-channel")
 # product.
 POPULATE_DEFAULTS = get_bool_from_env("POPULATE_DEFAULTS", True)
 
-
 #  Sentry
 sentry_sdk.utils.MAX_STRING_LENGTH = 4096
 SENTRY_DSN = os.environ.get("SENTRY_DSN")
@@ -703,9 +700,9 @@ for entry_point in installed_plugins:
 PLUGINS = BUILTIN_PLUGINS + EXTERNAL_PLUGINS
 
 if (
-    not DEBUG
-    and ENABLE_ACCOUNT_CONFIRMATION_BY_EMAIL
-    and ALLOWED_CLIENT_HOSTS == get_list(_DEFAULT_CLIENT_HOSTS)
+        not DEBUG
+        and ENABLE_ACCOUNT_CONFIRMATION_BY_EMAIL
+        and ALLOWED_CLIENT_HOSTS == get_list(_DEFAULT_CLIENT_HOSTS)
 ):
     raise ImproperlyConfigured(
         "Make sure you've added storefront address to ALLOWED_CLIENT_HOSTS "
@@ -740,7 +737,6 @@ if "JAEGER_AGENT_HOST" in os.environ:
         validate=True,
     ).initialize_tracer()
 
-
 # Some cloud providers (Heroku) export REDIS_URL variable instead of CACHE_URL
 REDIS_URL = os.environ.get("REDIS_URL")
 if REDIS_URL:
@@ -754,7 +750,6 @@ JWT_TTL_APP_ACCESS = timedelta(
     seconds=parse(os.environ.get("JWT_TTL_APP_ACCESS", "5 minutes"))
 )
 JWT_TTL_REFRESH = timedelta(seconds=parse(os.environ.get("JWT_TTL_REFRESH", "30 days")))
-
 
 JWT_TTL_REQUEST_EMAIL_CHANGE = timedelta(
     seconds=parse(os.environ.get("JWT_TTL_REQUEST_EMAIL_CHANGE", "1 hour")),
@@ -777,7 +772,6 @@ SEARCH_ORDERS_MAX_INDEXED_LINES = 100
 PRODUCT_MAX_INDEXED_ATTRIBUTES = 1000
 PRODUCT_MAX_INDEXED_ATTRIBUTE_VALUES = 100
 PRODUCT_MAX_INDEXED_VARIANTS = 1000
-
 
 # Patch SubscriberExecutionContext class from `graphql-core-legacy` package
 # to fix bug causing not returning errors for subscription queries.
