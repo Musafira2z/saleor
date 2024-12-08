@@ -72,8 +72,7 @@ def export_gift_cards(
     print("\n")
 
     queryset = Order.objects.filter(
-        created_at__date=date.today(),
-        status=OrderStatus.FULFILLED
+        created_at__date=date.today()
     )
 
     export_fields = ["number", "customer_name", "address", "total"]
